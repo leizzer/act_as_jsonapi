@@ -1,11 +1,12 @@
 require_relative 'status_code_response'
+require_relative 'request_error_serializer'
 
 module ActAsJsonapi
   module JSONErrors
     extend ActiveSupport::Concern
 
     def serializable(error_status, detail, detail_meta)
-      ::StatusCodeResponse.serializable(error_status, detail, detail_meta)
+      StatusCodeResponse.serializable(error_status, detail, detail_meta)
     end
 
     def translate_detail_code(detail_code)
@@ -16,7 +17,7 @@ module ActAsJsonapi
 
     def render_error(error_status, detail_code = nil, detail_meta = nil )
       detail = translate_detail_code(detail_code)
-      serializer = RequestErrorSerializer.new serializable(error_status, detail , detail_meta)
+      serializer = ::RequestErrorSerializer.new serializable(error_status, detail , detail_meta)
       render_json_api serializer, status: error_status
     end
 

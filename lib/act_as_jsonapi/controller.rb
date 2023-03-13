@@ -16,18 +16,22 @@ module ActAsJsonapi
 
     def index
       authorize model
+
       render_json_api serializer.new(_resources, serializer_options).serializable_hash
     end
 
     def show
       authorize _resource
+
+      render_not_found && return if _resource.kind_of? NilClass
+
       render_json_api serializer.new(_resource).serializable_hash
     end
 
     def update
       authorize model
 
-      render_not_found && return if _resource.kind_of? NullObject
+      render_not_found && return if _resource.kind_of? NilClass
 
       if _resource.update_attributes _resource_params
         render_json_api serializer.new(_resource).serializable_hash, status: :reset_content
@@ -91,7 +95,7 @@ module ActAsJsonapi
     end
 
     def _resource
-      @_resource ||= policy_scope(model).find_by_id(params[:id]) || NullObject.new
+      @_resource ||= policy_scope(model).find_by_id(params[:id])
     end
 
     def _resources
